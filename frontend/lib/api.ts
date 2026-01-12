@@ -59,3 +59,25 @@ export async function scoreGuess(
 
   return response.json()
 }
+
+export interface RevealResponse {
+  secret_word: string
+}
+
+/**
+ * Reveal the secret word for a game (for peek/hint feature)
+ */
+export async function revealWord(gameId: string): Promise<RevealResponse> {
+  const response = await fetch(`${API_BASE_URL}/reveal/${gameId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to reveal word: ${response.statusText}`)
+  }
+
+  return response.json()
+}

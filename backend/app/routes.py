@@ -83,3 +83,18 @@ async def score_guess(request: ScoreRequest):
         score=score,
         is_correct=is_correct
     )
+
+
+@router.get("/reveal/{game_id}")
+async def reveal_word(game_id: str):
+    """
+    Reveal the secret word for a given game_id.
+    This endpoint allows users to peek at the answer (e.g., when holding an eye icon).
+    """
+    # Validate game_id exists
+    if game_id not in games:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    secret_word = games[game_id]
+    
+    return {"secret_word": secret_word}

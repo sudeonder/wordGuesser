@@ -40,3 +40,29 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+.env.*.local
+
+# FastText model files (very large - 6.7GB+)
+*.bin
+*.bin.gz
+cc.en.300.bin
+wiki.en.bin
+*.vec
+
+# Testing and scripts
+test_api.sh
+*.pyc
+
+# Logs
+*.log
+logs/
+
+# Database (if added later)
+*.db
+*.sqlite
+*.sqlite3
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
