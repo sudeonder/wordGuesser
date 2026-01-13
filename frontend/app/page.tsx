@@ -424,6 +424,34 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Funky Footer */}
+      <footer className="mt-12 py-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+              <span className="font-mono">Made with</span>
+              <span className="text-red-500 animate-pulse">❤️</span>
+              <span className="font-mono">by</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg tracking-wide">
+                Sude
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+              <span className="font-mono">© 2026</span>
+              <span className="text-gray-400 dark:text-gray-600">•</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300 tracking-wider">
+                Bilkent
+              </span>
+            </div>
+            <div className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-400 dark:text-gray-600">
+              <span className="animate-bounce">🎯</span>
+              <span>Word Embeddings Game</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🚀</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
