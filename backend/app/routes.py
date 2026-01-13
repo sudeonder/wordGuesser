@@ -98,3 +98,14 @@ async def reveal_word(game_id: str):
     secret_word = games[game_id]
     
     return {"secret_word": secret_word}
+
+
+class HintItem(BaseModel):
+    word: str
+    similairity: float
+    score: int
+
+class HintResponse(BaseModel):
+    hints: list[hintItem]
+    
+@router.get("/hint/{game_id}")
