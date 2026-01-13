@@ -29,6 +29,8 @@ export default function Home() {
   const [hints, setHints] = useState<HintItem[]>([])
   const [isHintModalOpen, setIsHintModalOpen] = useState(false)
   const [isLoadingHints, setIsLoadingHints] = useState(false)
+  const [showVictory, setShowVictory] = useState(false)
+  const [victoryWord, setVictoryWord] = useState<string | null>(null)
 
   // Sort guess history by proximity (closest first)
   const sortedGuessHistory = useMemo(() => {
@@ -99,8 +101,14 @@ export default function Home() {
       setGuess('')
 
       if (response.is_correct) {
-        // Game won! Could show a success message or reset
-        alert('Congratulations! You guessed the word correctly!')
+        // Show victory effect
+        setVictoryWord(guess.trim())
+        setShowVictory(true)
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+          setShowVictory(false)
+          setVictoryWord(null)
+        }, 4000)
       }
     } catch (err) {
       setError('Failed to score guess. Please try again.')
@@ -168,9 +176,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-8 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <h1 className="text-5xl font-extrabold text-center text-white drop-shadow-2xl relative">
+      <div className="max-w-5xl w-full mx-auto">
+        <div className="flex items-center justify-center gap-6 mb-16">
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-extrabold text-center text-white drop-shadow-2xl relative">
             <span className="relative z-10 inline-block animate-bounce" style={{ animationDuration: '2s' }}>
               Sudo
             </span>
@@ -193,7 +201,7 @@ export default function Home() {
               onMouseLeave={handlePeekEnd}
               onTouchStart={handlePeekStart}
               onTouchEnd={handlePeekEnd}
-              className="relative p-2 text-gray-400 hover:text-cyan-400 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-lg"
+              className="relative p-3 text-gray-400 hover:text-cyan-400 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-lg"
               title="Click and hold to peek at the secret word"
             >
               <svg
@@ -202,7 +210,7 @@ export default function Home() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className={`w-6 h-6 ${isPeeking ? 'text-cyan-400' : ''}`}
+                className={`w-8 h-8 ${isPeeking ? 'text-cyan-400' : ''}`}
               >
                 <path
                   strokeLinecap="round"
@@ -227,26 +235,26 @@ export default function Home() {
           )}
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-6 mb-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-10 mb-10">
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label htmlFor="guess" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="guess" className="block text-xl font-medium text-gray-300 mb-4">
                 Enter your guess:
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 <input
                   id="guess"
                   type="text"
                   value={guess}
                   onChange={(e) => setGuess(e.target.value)}
                   placeholder="Type a word..."
-                  className="flex-1 px-4 py-2 bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+                  className="flex-1 px-8 py-4 text-xl bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
                   disabled={isLoading || !gameId}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !gameId || !guess.trim()}
-                  className="relative px-6 py-2 bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden group border-2 border-cyan-500/50 hover:border-cyan-400 shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-400/50"
+                  className="relative px-10 py-4 text-xl bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden group border-2 border-cyan-500/50 hover:border-cyan-400 shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-400/50"
                 >
                   <span className="relative z-10 font-semibold">
                     {isLoading ? 'Submitting...' : 'Submit'}
@@ -262,11 +270,11 @@ export default function Home() {
             </div>
           </form>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-8 flex gap-4">
             <button
               onClick={handleGetHints}
               disabled={isLoadingHints || !gameId}
-              className="relative px-4 py-2 bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm hover:scale-105 active:scale-95 overflow-hidden group border-2 border-orange-500/50 hover:border-orange-400 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-400/50"
+              className="relative px-8 py-4 text-xl bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden group border-2 border-orange-500/50 hover:border-orange-400 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-400/50"
             >
               <span className="relative z-10 font-semibold">
                 {isLoadingHints ? 'Loading...' : '💡 Hint'}
@@ -280,7 +288,7 @@ export default function Home() {
             </button>
             <button
               onClick={handleNewGame}
-              className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm border border-slate-600"
+              className="px-8 py-4 text-xl bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors border border-slate-600 font-semibold"
             >
               New Game
             </button>
@@ -293,8 +301,8 @@ export default function Home() {
           )}
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-white">
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-10">
+          <h2 className="text-4xl font-semibold mb-8 text-white">
             Guess History
           </h2>
           
@@ -307,9 +315,9 @@ export default function Home() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-slate-700">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Guess</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Similarity</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Proximity</th>
+                    <th className="text-left py-5 px-8 text-xl font-semibold text-gray-300">Guess</th>
+                    <th className="text-left py-5 px-8 text-xl font-semibold text-gray-300">Similarity</th>
+                    <th className="text-left py-5 px-8 text-xl font-semibold text-gray-300">Proximity</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -337,9 +345,9 @@ export default function Home() {
                       // Progress bar
                       const progressPercent = (displayRank / 1000) * 100
                       proximityBar = (
-                        <div className="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                           <div
-                            className="bg-orange-500 h-2 rounded-full transition-all"
+                            className="bg-orange-500 h-3 rounded-full transition-all"
                             style={{ width: `${progressPercent}%` }}
                           />
                         </div>
@@ -361,26 +369,26 @@ export default function Home() {
                             : 'hover:bg-slate-700/30'
                         } transition-colors`}
                       >
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white">
+                        <td className="py-5 px-8">
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-xl text-white">
                               {item.word}
                             </span>
                             {item.isCorrect && (
-                              <span className="px-2 py-1 bg-emerald-500 text-gray-900 rounded text-xs font-medium shadow-lg shadow-emerald-500/50">
+                              <span className="px-4 py-2 bg-emerald-500 text-gray-900 rounded text-base font-medium shadow-lg shadow-emerald-500/50">
                                 ✓
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="text-gray-300">
+                        <td className="py-5 px-8">
+                          <span className="text-xl text-gray-300">
                             {(item.similarity * 100).toFixed(1)}%
                           </span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-5 px-8">
                           <div>
-                            <span className={`font-medium ${proximityColor}`}>
+                            <span className={`text-xl font-medium ${proximityColor}`}>
                               {proximityDisplay}
                             </span>
                             {proximityBar}
@@ -394,42 +402,70 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Funky Footer */}
+        <footer className="mt-16 py-10 border-t border-slate-700/50">
+          <div className="text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-4 text-lg text-gray-400">
+                <span className="font-mono">Made with</span>
+                <span className="text-2xl text-pink-500 animate-pulse">❤️</span>
+                <span className="font-mono">by</span>
+                <span className="font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent text-2xl tracking-wide">
+                  Sude
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-base text-gray-500">
+                <span className="font-mono">© 2026</span>
+                <span className="text-slate-600">•</span>
+                <span className="font-semibold text-gray-300 tracking-wider text-lg">
+                  Bilkent
+                </span>
+              </div>
+              <div className="mt-3 flex items-center justify-center gap-2 text-base text-gray-500">
+                <span className="text-xl animate-bounce">🎯</span>
+                <span>Word Embeddings Game</span>
+                <span className="text-xl animate-bounce" style={{ animationDelay: '0.2s' }}>🚀</span>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
 
       {/* Hint Modal */}
       {isHintModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+          <div className="bg-slate-800/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-slate-700">
-              <h2 className="text-2xl font-bold text-white">
+            <div className="flex justify-between items-center p-8 border-b border-slate-700">
+              <h2 className="text-3xl font-bold text-white">
                 💡 Top 100 Closest Words
               </h2>
               <button
                 onClick={() => setIsHintModalOpen(false)}
-                className="text-gray-400 hover:text-white text-2xl font-bold transition-colors"
+                className="text-gray-400 hover:text-white text-3xl font-bold transition-colors"
               >
                 ×
               </button>
             </div>
             
             {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-8">
               {isLoadingHints ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-400">Loading hints...</p>
+                <div className="text-center py-12">
+                  <p className="text-xl text-gray-400">Loading hints...</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {hints.map((hint, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 border border-slate-700/30 transition-colors"
+                      className="flex justify-between items-center p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 border border-slate-700/30 transition-colors"
                     >
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-lg text-white">
                         {index + 1}. {hint.word}
                       </span>
-                      <div className="flex gap-4 text-sm text-gray-300">
+                      <div className="flex gap-6 text-base text-gray-300">
                         <span>Similarity: {(hint.similarity * 100).toFixed(1)}%</span>
                         <span className="font-semibold">Score: {hint.score}/100</span>
                       </div>
@@ -440,10 +476,10 @@ export default function Home() {
             </div>
             
             {/* Modal Footer */}
-            <div className="p-6 border-t border-slate-700">
+            <div className="p-8 border-t border-slate-700">
               <button
                 onClick={() => setIsHintModalOpen(false)}
-                className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg hover:from-purple-500 hover:to-cyan-500 transition-all shadow-lg shadow-purple-500/30"
+                className="w-full px-6 py-4 text-xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg hover:from-purple-500 hover:to-cyan-500 transition-all shadow-lg shadow-purple-500/30 font-semibold"
               >
                 Close
               </button>
@@ -452,33 +488,64 @@ export default function Home() {
         </div>
       )}
 
-      {/* Funky Footer */}
-      <footer className="mt-12 py-6 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-              <span className="font-mono">Made with</span>
-              <span className="text-red-500 animate-pulse">❤️</span>
-              <span className="font-mono">by</span>
-              <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg tracking-wide">
-                Sude
-              </span>
+      {/* Victory Effect Modal */}
+      {showVictory && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100]"
+          onClick={() => {
+            setShowVictory(false)
+            setVictoryWord(null)
+          }}
+        >
+          <div className="relative text-center animate-scale-in">
+            {/* Confetti/Sparkle Effect */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              {[...Array(20)].map((_, i) => (
+                <span
+                  key={i}
+                  className="absolute text-4xl animate-bounce"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 0.5}s`,
+                    animationDuration: `${1 + Math.random()}s`,
+                  }}
+                >
+                  {['🎉', '✨', '⭐', '🎊', '💫'][Math.floor(Math.random() * 5)]}
+                </span>
+              ))}
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-              <span className="font-mono">© 2026</span>
-              <span className="text-gray-400 dark:text-gray-600">•</span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300 tracking-wider">
-                Bilkent
-              </span>
+            
+            {/* Main Victory Content */}
+            <div className="relative z-10 bg-slate-800/95 backdrop-blur-md border-2 border-emerald-500/50 rounded-2xl p-16 shadow-2xl shadow-emerald-500/50">
+              <div className="text-9xl mb-8 animate-bounce" style={{ animationDuration: '1s' }}>
+                🎯
+              </div>
+              <h2 className="text-6xl font-extrabold text-white mb-6 drop-shadow-lg">
+                Congratulations!
+              </h2>
+              <p className="text-3xl text-emerald-400 font-semibold mb-3">
+                You guessed it!
+              </p>
+              <p className="text-2xl text-gray-300 mb-8">
+                The word was: <span className="text-emerald-400 font-bold">{victoryWord}</span>
+              </p>
+              <div className="flex items-center justify-center gap-3 text-emerald-400">
+                <span className="text-4xl animate-pulse">✨</span>
+                <span className="text-2xl font-semibold">Perfect Match!</span>
+                <span className="text-4xl animate-pulse" style={{ animationDelay: '0.2s' }}>✨</span>
+              </div>
             </div>
-            <div className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-400 dark:text-gray-600">
-              <span className="animate-bounce">🎯</span>
-              <span>Word Embeddings Game</span>
-              <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🚀</span>
+            
+            {/* Pulsing glow rings */}
+            <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
+              <div className="absolute w-96 h-96 bg-emerald-500/20 rounded-full animate-ping"></div>
+              <div className="absolute w-80 h-80 bg-emerald-500/30 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute w-64 h-64 bg-emerald-500/40 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
             </div>
           </div>
         </div>
-      </footer>
+      )}
     </main>
   )
 }
