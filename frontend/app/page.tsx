@@ -167,11 +167,22 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="min-h-screen p-8 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white">
-            Word Guessing Game
+          <h1 className="text-5xl font-extrabold text-center text-white drop-shadow-2xl relative">
+            <span className="relative z-10 inline-block animate-bounce" style={{ animationDuration: '2s' }}>
+              Sudo
+            </span>
+            <span className="relative z-10 inline-block mx-2 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] animate-pulse">
+              Guesser
+            </span>
+            {/* Animated glow effect */}
+            <span className="absolute inset-0 text-cyan-400 blur-xl opacity-50 animate-pulse" style={{ animationDuration: '1.5s' }}>
+              Sudo Guesser
+            </span>
+            {/* Shimmer effect */}
+            <span className="absolute inset-0 -z-10 bg-white/10 blur-2xl animate-pulse" style={{ animationDuration: '2.5s' }}></span>
           </h1>
           
           {/* Eye icon for peeking */}
@@ -182,7 +193,7 @@ export default function Home() {
               onMouseLeave={handlePeekEnd}
               onTouchStart={handlePeekStart}
               onTouchEnd={handlePeekEnd}
-              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg"
+              className="relative p-2 text-gray-400 hover:text-cyan-400 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-lg"
               title="Click and hold to peek at the secret word"
             >
               <svg
@@ -191,7 +202,7 @@ export default function Home() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className={`w-6 h-6 ${isPeeking ? 'text-indigo-600 dark:text-indigo-400' : ''}`}
+                className={`w-6 h-6 ${isPeeking ? 'text-cyan-400' : ''}`}
               >
                 <path
                   strokeLinecap="round"
@@ -207,19 +218,19 @@ export default function Home() {
               
               {/* Secret word display when peeking */}
               {isPeeking && secretWord && (
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg shadow-lg z-10 whitespace-nowrap text-sm font-semibold">
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-2 bg-cyan-500 text-gray-900 rounded-lg shadow-xl shadow-cyan-500/50 z-10 whitespace-nowrap text-sm font-semibold">
                   {secretWord}
-                  <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45"></div>
+                  <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-cyan-500 rotate-45"></div>
                 </div>
               )}
             </button>
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-6 mb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="guess" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="guess" className="block text-sm font-medium text-gray-300 mb-2">
                 Enter your guess:
               </label>
               <div className="flex gap-2">
@@ -229,15 +240,23 @@ export default function Home() {
                   value={guess}
                   onChange={(e) => setGuess(e.target.value)}
                   placeholder="Type a word..."
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="flex-1 px-4 py-2 bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
                   disabled={isLoading || !gameId}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !gameId || !guess.trim()}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="relative px-6 py-2 bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden group border-2 border-cyan-500/50 hover:border-cyan-400 shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-400/50"
                 >
-                  {isLoading ? 'Submitting...' : 'Submit'}
+                  <span className="relative z-10 font-semibold">
+                    {isLoading ? 'Submitting...' : 'Submit'}
+                  </span>
+                  {/* Animated shine effect */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></span>
+                  {/* Neon glow effect */}
+                  <span className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/10 transition-colors duration-300 blur-sm"></span>
+                  {/* Pulsing border glow */}
+                  <span className="absolute -inset-0.5 bg-cyan-500/50 rounded-lg opacity-0 group-hover:opacity-100 group-hover:animate-pulse blur-md transition-opacity duration-300"></span>
                 </button>
               </div>
             </div>
@@ -247,42 +266,50 @@ export default function Home() {
             <button
               onClick={handleGetHints}
               disabled={isLoadingHints || !gameId}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+              className="relative px-4 py-2 bg-slate-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm hover:scale-105 active:scale-95 overflow-hidden group border-2 border-orange-500/50 hover:border-orange-400 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-400/50"
             >
-              {isLoadingHints ? 'Loading...' : '💡 Hint'}
+              <span className="relative z-10 font-semibold">
+                {isLoadingHints ? 'Loading...' : '💡 Hint'}
+              </span>
+              {/* Animated shine effect */}
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></span>
+              {/* Neon glow effect */}
+              <span className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-colors duration-300 blur-sm"></span>
+              {/* Pulsing border glow */}
+              <span className="absolute -inset-0.5 bg-orange-500/50 rounded-lg opacity-0 group-hover:opacity-100 group-hover:animate-pulse blur-md transition-opacity duration-300"></span>
             </button>
             <button
               onClick={handleNewGame}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+              className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm border border-slate-600"
             >
               New Game
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 rounded">
+            <div className="mt-4 p-3 bg-red-900/50 border border-red-700/50 text-red-200 rounded-lg backdrop-blur-sm">
               {error}
             </div>
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-white">
             Guess History
           </h2>
           
           {guessHistory.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+            <p className="text-gray-400 text-center py-8">
               No guesses yet. Make your first guess above!
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Guess</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Similarity</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Proximity</th>
+                  <tr className="border-b-2 border-slate-700">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Guess</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Similarity</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Proximity</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -328,26 +355,26 @@ export default function Home() {
                     return (
                       <tr
                         key={index}
-                        className={`border-b border-gray-200 dark:border-gray-700 ${
+                        className={`border-b border-slate-700/50 ${
                           item.isCorrect
-                            ? 'bg-green-50 dark:bg-green-900/20'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                        }`}
+                            ? 'bg-emerald-900/20 hover:bg-emerald-900/30'
+                            : 'hover:bg-slate-700/30'
+                        } transition-colors`}
                       >
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 dark:text-white">
+                            <span className="font-semibold text-white">
                               {item.word}
                             </span>
                             {item.isCorrect && (
-                              <span className="px-2 py-1 bg-green-500 text-white rounded text-xs font-medium">
+                              <span className="px-2 py-1 bg-emerald-500 text-gray-900 rounded text-xs font-medium shadow-lg shadow-emerald-500/50">
                                 ✓
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="text-gray-700 dark:text-gray-300">
+                          <span className="text-gray-300">
                             {(item.similarity * 100).toFixed(1)}%
                           </span>
                         </td>
@@ -371,16 +398,16 @@ export default function Home() {
 
       {/* Hint Modal */}
       {isHintModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="flex justify-between items-center p-6 border-b border-slate-700">
+              <h2 className="text-2xl font-bold text-white">
                 💡 Top 100 Closest Words
               </h2>
               <button
                 onClick={() => setIsHintModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold"
+                className="text-gray-400 hover:text-white text-2xl font-bold transition-colors"
               >
                 ×
               </button>
@@ -390,19 +417,19 @@ export default function Home() {
             <div className="flex-1 overflow-y-auto p-6">
               {isLoadingHints ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 dark:text-gray-400">Loading hints...</p>
+                  <p className="text-gray-400">Loading hints...</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {hints.map((hint, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                      className="flex justify-between items-center p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 border border-slate-700/30 transition-colors"
                     >
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-white">
                         {index + 1}. {hint.word}
                       </span>
-                      <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-300">
+                      <div className="flex gap-4 text-sm text-gray-300">
                         <span>Similarity: {(hint.similarity * 100).toFixed(1)}%</span>
                         <span className="font-semibold">Score: {hint.score}/100</span>
                       </div>
@@ -413,10 +440,10 @@ export default function Home() {
             </div>
             
             {/* Modal Footer */}
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-t border-slate-700">
               <button
                 onClick={() => setIsHintModalOpen(false)}
-                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg hover:from-purple-500 hover:to-cyan-500 transition-all shadow-lg shadow-purple-500/30"
               >
                 Close
               </button>
