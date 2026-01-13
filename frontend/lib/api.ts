@@ -8,6 +8,8 @@ export interface ScoreResponse {
   similarity: number
   score: number
   is_correct: boolean
+  proximity_rank: number | null
+  proximity_in_top_1500: boolean
 }
 
 export interface ScoreRequest {
@@ -77,6 +79,34 @@ export async function revealWord(gameId: string): Promise<RevealResponse> {
 
   if (!response.ok) {
     throw new Error(`Failed to reveal word: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export interface HintItem {
+  word: string
+  similarity: number
+  score: number
+}
+
+export interface HintResponse {
+  hints: HintItem[]
+}
+
+/**
+ * Get hints (top 100 closest words) for a game
+ */
+export async function getHints(gameId: string): Promise<HintResponse> {
+  const response = await fetch(`${API_BASE_URL}/hint/${gameId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to get hints: ${response.statusText}`)
   }
 
   return response.json()

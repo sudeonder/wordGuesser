@@ -1,13 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { newGame, scoreGuess, revealWord } from '@/lib/api'
+import { useState, useEffect, useMemo } from 'react'
+import { newGame, scoreGuess, revealWord, getHints } from '@/lib/api'
 
 interface Guess {
   word: string
   similarity: number
   score: number
   isCorrect: boolean
+  proximityRank: number | null
+  proximityInTop1500: boolean
+}
+
+interface HintItem {
+  word: string
+  similarity: number
+  score: number
 }
 
 export default function Home() {
@@ -18,6 +26,28 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [secretWord, setSecretWord] = useState<string | null>(null)
   const [isPeeking, setIsPeeking] = useState(false)
+  const [hints, setHints] = useState<HintItem[]>([])
+  const [isHintModalOpen, setIsHintModalOpen] = useState(false)
+  const [isLoadingHints, setIsLoadingHints] = useState(false)
+
+  // Sort guess history by proximity (closest first)
+  const sortedGuessHistory = useMemo(() => {
+    return [...guessHistory].sort((a, b) => {
+      // Correct guesses always first
+      if (a.isCorrect && !b.isCorrect) return -1
+      if (!a.isCorrect && b.isCorrect) return 1
+      
+      // If both correct, maintain order
+      if (a.isCorrect && b.isCorrect) return 0
+      
+      // Sort by proximity rank (lower rank = closer = better)
+      // null ranks (not in top 1500) go to the end
+      const rankA = a.proximityRank ?? Infinity
+      const rankB = b.proximityRank ?? Infinity
+      
+      return rankA - rankB
+    })
+  }, [guessHistory])
 
   // Initialize game on page load
   useEffect(() => {
@@ -61,6 +91,8 @@ export default function Home() {
         similarity: response.similarity,
         score: response.score,
         isCorrect: response.is_correct,
+        proximityRank: response.proximity_rank,
+        proximityInTop1500: response.proximity_in_top_1500,
       }
 
       setGuessHistory([newGuess, ...guessHistory])
@@ -114,6 +146,24 @@ export default function Home() {
   const handlePeekEnd = () => {
     setIsPeeking(false)
     setSecretWord(null)
+  }
+
+  const handleGetHints = async () => {
+    if (!gameId) return
+    
+    setIsLoadingHints(true)
+    setIsHintModalOpen(true)
+    
+    try {
+      const response = await getHints(gameId)
+      setHints(response.hints)
+    } catch (err) {
+      console.error('Error getting hints:', err)
+      setError('Failed to load hints. Please try again.')
+      setIsHintModalOpen(false)
+    } finally {
+      setIsLoadingHints(false)
+    }
   }
 
   return (
@@ -193,12 +243,21 @@ export default function Home() {
             </div>
           </form>
 
-          <button
-            onClick={handleNewGame}
-            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-          >
-            New Game
-          </button>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={handleGetHints}
+              disabled={isLoadingHints || !gameId}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            >
+              {isLoadingHints ? 'Loading...' : '💡 Hint'}
+            </button>
+            <button
+              onClick={handleNewGame}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+            >
+              New Game
+            </button>
+          </div>
 
           {error && (
             <div className="mt-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 rounded">
@@ -217,36 +276,154 @@ export default function Home() {
               No guesses yet. Make your first guess above!
             </p>
           ) : (
-            <div className="space-y-3">
-              {guessHistory.map((item, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border-2 ${
-                    item.isCorrect
-                      ? 'bg-green-50 dark:bg-green-900 border-green-400 dark:border-green-600'
-                      : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                      {item.word}
-                    </span>
-                    {item.isCorrect && (
-                      <span className="px-2 py-1 bg-green-500 text-white rounded text-sm font-medium">
-                        Correct!
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 flex gap-4 text-sm text-gray-600 dark:text-gray-300">
-                    <span>Similarity: {(item.similarity * 100).toFixed(1)}%</span>
-                    <span>Score: {item.score}/100</span>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Guess</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Similarity</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Proximity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedGuessHistory.map((item, index) => {
+                    // Determine proximity display
+                    let proximityDisplay = "—"
+                    let proximityColor = "text-gray-500 dark:text-gray-400"
+                    let proximityBar = null
+                    
+                    if (item.isCorrect) {
+                      proximityDisplay = "🎯 Exact Match!"
+                      proximityColor = "text-green-600 dark:text-green-400 font-bold"
+                    } else if (item.proximityRank !== null && item.proximityRank <= 1000) {
+                      // Show rank out of 1000
+                      // Rank 2 should show 999/1000, Rank 800 should show 200/1000
+                      // Formula: displayRank = 1000 - proximityRank (for rank > 1)
+                      // Special case: rank 1 and 2 both show 999/1000
+                      let displayRank = 1000 - item.proximityRank
+                      if (item.proximityRank <= 2) {
+                        displayRank = 999  // Top 2 show 999/1000
+                      }
+                      proximityDisplay = `${displayRank} / 1000`
+                      proximityColor = "text-orange-600 dark:text-orange-400"
+                      
+                      // Progress bar
+                      const progressPercent = (displayRank / 1000) * 100
+                      proximityBar = (
+                        <div className="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-orange-500 h-2 rounded-full transition-all"
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                      )
+                    } else if (item.proximityInTop1500) {
+                      proximityDisplay = "Warm (1500+)"
+                      proximityColor = "text-yellow-600 dark:text-yellow-400"
+                    } else {
+                      proximityDisplay = "Cold"
+                      proximityColor = "text-blue-600 dark:text-blue-400"
+                    }
+                    
+                    return (
+                      <tr
+                        key={index}
+                        className={`border-b border-gray-200 dark:border-gray-700 ${
+                          item.isCorrect
+                            ? 'bg-green-50 dark:bg-green-900/20'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        }`}
+                      >
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900 dark:text-white">
+                              {item.word}
+                            </span>
+                            {item.isCorrect && (
+                              <span className="px-2 py-1 bg-green-500 text-white rounded text-xs font-medium">
+                                ✓
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {(item.similarity * 100).toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div>
+                            <span className={`font-medium ${proximityColor}`}>
+                              {proximityDisplay}
+                            </span>
+                            {proximityBar}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
       </div>
+
+      {/* Hint Modal */}
+      {isHintModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                💡 Top 100 Closest Words
+              </h2>
+              <button
+                onClick={() => setIsHintModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {isLoadingHints ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 dark:text-gray-400">Loading hints...</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {hints.map((hint, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {index + 1}. {hint.word}
+                      </span>
+                      <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-300">
+                        <span>Similarity: {(hint.similarity * 100).toFixed(1)}%</span>
+                        <span className="font-semibold">Score: {hint.score}/100</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setIsHintModalOpen(false)}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
