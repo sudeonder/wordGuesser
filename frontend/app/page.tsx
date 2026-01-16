@@ -301,6 +301,67 @@ export default function Home() {
           )}
         </div>
 
+        {/* Last Guess Display */}
+        {guessHistory.length > 0 && (
+          <div className="bg-gradient-to-r from-cyan-900/30 to-purple-900/30 backdrop-blur-sm border-2 border-cyan-500/50 rounded-xl shadow-2xl p-8 mb-8 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-cyan-400">Latest Guess</span>
+                  {guessHistory[0].isCorrect && (
+                    <span className="px-4 py-2 bg-emerald-500 text-gray-900 rounded-lg text-lg font-bold shadow-lg shadow-emerald-500/50 animate-pulse">
+                      ✓ Correct!
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">Word</div>
+                    <div className="text-3xl font-bold text-white">{guessHistory[0].word}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">Similarity</div>
+                    <div className="text-3xl font-bold text-cyan-400">
+                      {(guessHistory[0].similarity * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">Proximity</div>
+                    <div className="text-2xl font-bold">
+                      {(() => {
+                        const item = guessHistory[0]
+                        if (item.isCorrect) {
+                          return <span className="text-emerald-400">🎯 Exact Match!</span>
+                        } else if (item.proximityRank !== null && item.proximityRank <= 1000) {
+                          let displayRank = 1000 - item.proximityRank
+                          if (item.proximityRank <= 2) {
+                            displayRank = 999
+                          }
+                          return (
+                            <div>
+                              <span className="text-orange-400">{displayRank} / 1000</span>
+                              <div className="mt-2 w-full bg-gray-700 rounded-full h-3">
+                                <div
+                                  className="bg-orange-500 h-3 rounded-full transition-all"
+                                  style={{ width: `${(displayRank / 1000) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        } else if (item.proximityInTop1500) {
+                          return <span className="text-yellow-400">Warm (1500+)</span>
+                        } else {
+                          return <span className="text-blue-400">Cold</span>
+                        }
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-10">
           <h2 className="text-4xl font-semibold mb-8 text-white">
             Guess History
