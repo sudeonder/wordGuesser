@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { newGame, scoreGuess, revealWord, getHints } from '@/lib/api'
 
 interface Guess {
@@ -31,6 +31,7 @@ export default function Home() {
   const [isLoadingHints, setIsLoadingHints] = useState(false)
   const [showVictory, setShowVictory] = useState(false)
   const [victoryWord, setVictoryWord] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Sort guess history by proximity (closest first)
   const sortedGuessHistory = useMemo(() => {
@@ -74,6 +75,16 @@ export default function Home() {
 
     initializeGame()
   }, [])
+
+  // Refocus input field when loading completes
+  useEffect(() => {
+    if (!isLoading && inputRef.current) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        inputRef.current?.focus()
+      })
+    }
+  }, [isLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -243,6 +254,7 @@ export default function Home() {
               </label>
               <div className="flex gap-4">
                 <input
+                  ref={inputRef}
                   id="guess"
                   type="text"
                   value={guess}
