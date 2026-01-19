@@ -2,7 +2,9 @@
 
 A single-player **word-guessing game** powered by **FastText word embeddings**. You guess a word; the backend scores how semantically close it is to the secret word using cosine similarity.
 
-## What’s included
+![Demo](assets/demo.gif)
+
+## What's included
 
 ### Gameplay + UI
 - **Modern dark UI** (Next.js + Tailwind)
