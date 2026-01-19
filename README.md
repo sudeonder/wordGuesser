@@ -2,7 +2,7 @@
 
 A single-player **word-guessing game** powered by **FastText word embeddings**. You guess a word; the backend scores how semantically close it is to the secret word using cosine similarity.
 
-![Demo](assets/demo.gif)
+<img src="assets/demo.gif" alt="Demo" width="600"/>
 
 ## What's included
 
